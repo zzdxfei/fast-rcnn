@@ -7,6 +7,8 @@
 
 """The data layer used during training to train a Fast R-CNN network.
 
+训练模型时使用的数据层
+
 RoIDataLayer implements a Caffe Python layer.
 """
 
@@ -26,7 +28,11 @@ class RoIDataLayer(caffe.Layer):
         self._cur = 0
 
     def _get_next_minibatch_inds(self):
-        """Return the roidb indices for the next minibatch."""
+        """Return the roidb indices for the next minibatch.
+
+        最后一个batch丢弃
+
+        """
         if self._cur + cfg.TRAIN.IMS_PER_BATCH >= len(self._roidb):
             self._shuffle_roidb_inds()
 
@@ -80,15 +86,18 @@ class RoIDataLayer(caffe.Layer):
 
         # data blob: holds a batch of N images, each with 3 channels
         # The height and width (100 x 100) are dummy values
+        # 存放图片
         top[0].reshape(1, 3, 100, 100)
 
         # rois blob: holds R regions of interest, each is a 5-tuple
         # (n, x1, y1, x2, y2) specifying an image batch index n and a
         # rectangle (x1, y1, x2, y2)
+        # 存放Rois，每个由图片索引和坐标组成
         top[1].reshape(1, 5)
 
         # labels blob: R categorical labels in [0, ..., K] for K foreground
         # classes plus background
+        # 每个Roi区域的标签
         top[2].reshape(1)
 
         if cfg.TRAIN.BBOX_REG:
@@ -97,10 +106,12 @@ class RoIDataLayer(caffe.Layer):
 
             # bbox_targets blob: R bounding-box regression targets with 4
             # targets per class
+            # 每个Roi区域的目标包围盒
             top[3].reshape(1, self._num_classes * 4)
 
             # bbox_loss_weights blob: At most 4 targets per roi are active;
             # thisbinary vector sepcifies the subset of active targets
+            # 用于标记每个Roi中哪些目标是激活的，这是一个bool值数组
             top[4].reshape(1, self._num_classes * 4)
 
     def forward(self, bottom, top):

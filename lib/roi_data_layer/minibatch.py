@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # --------------------------------------------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
@@ -13,6 +15,7 @@ import cv2
 from fast_rcnn.config import cfg
 from utils.blob import prep_im_for_blob, im_list_to_blob
 
+
 def get_minibatch(roidb, num_classes):
     """Given a roidb, construct a minibatch sampled from it."""
     num_images = len(roidb)
@@ -22,7 +25,9 @@ def get_minibatch(roidb, num_classes):
     assert(cfg.TRAIN.BATCH_SIZE % num_images == 0), \
         'num_images ({}) must divide BATCH_SIZE ({})'. \
         format(num_images, cfg.TRAIN.BATCH_SIZE)
+    # 每张图片要产生的Roi的个数
     rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
+    # 每张图片要产生的前景Roi个数
     fg_rois_per_image = np.round(cfg.TRAIN.FG_FRACTION * rois_per_image)
 
     # Get the input image blob, formatted for caffe
@@ -122,7 +127,9 @@ def _get_image_blob(roidb, scale_inds):
         im = cv2.imread(roidb[i]['image'])
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]
+        # 目标尺寸
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]
+        # resize后的图片，放缩比例
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)
         im_scales.append(im_scale)
