@@ -19,6 +19,7 @@ import heapq
 from utils.blob import im_list_to_blob
 import os
 
+
 def _get_image_blob(im):
     """Converts an image into a network input.
 
@@ -26,6 +27,7 @@ def _get_image_blob(im):
         im (ndarray): a color image in BGR order
 
     Returns:
+        使用`图像金字塔`
         blob (ndarray): a data blob holding an image pyramid
         im_scale_factors (list): list of image scales (relative to im) used
             in the image pyramid
@@ -55,6 +57,7 @@ def _get_image_blob(im):
 
     return blob, np.array(im_scale_factors)
 
+
 def _get_rois_blob(im_rois, im_scale_factors):
     """Converts RoIs into network inputs.
 
@@ -64,10 +67,12 @@ def _get_rois_blob(im_rois, im_scale_factors):
 
     Returns:
         blob (ndarray): R x 5 matrix of RoIs in the image pyramid
+        (属于金字塔的哪个级别，区域坐标)
     """
     rois, levels = _project_im_rois(im_rois, im_scale_factors)
     rois_blob = np.hstack((levels, rois))
     return rois_blob.astype(np.float32, copy=False)
+
 
 def _project_im_rois(im_rois, scales):
     """Project image RoIs into the image pyramid built by _get_image_blob.
@@ -86,7 +91,10 @@ def _project_im_rois(im_rois, scales):
         widths = im_rois[:, 2] - im_rois[:, 0] + 1
         heights = im_rois[:, 3] - im_rois[:, 1] + 1
 
+        # 每个ROI的面积
         areas = widths * heights
+
+        # 计算每个ROI在不同尺度下的面积，选择最接近224*224的级别作为结果
         scaled_areas = areas[:, np.newaxis] * (scales[np.newaxis, :] ** 2)
         diff_areas = np.abs(scaled_areas - 224 * 224)
         levels = diff_areas.argmin(axis=1)[:, np.newaxis]
@@ -97,6 +105,7 @@ def _project_im_rois(im_rois, scales):
 
     return rois, levels
 
+
 def _get_blobs(im, rois):
     """Convert an image and RoIs within that image into network inputs."""
     blobs = {'data' : None, 'rois' : None}
@@ -104,9 +113,13 @@ def _get_blobs(im, rois):
     blobs['rois'] = _get_rois_blob(rois, im_scale_factors)
     return blobs, im_scale_factors
 
+
 def _bbox_pred(boxes, box_deltas):
     """Transform the set of class-agnostic boxes into class-specific boxes
     by applying the predicted offsets (box_deltas)
+
+    Results:
+        N * 4K，N为ROI区域的个数，K为类别个数
     """
     if boxes.shape[0] == 0:
         return np.zeros((0, box_deltas.shape[1]))
@@ -117,6 +130,7 @@ def _bbox_pred(boxes, box_deltas):
     ctr_x = boxes[:, 0] + 0.5 * widths
     ctr_y = boxes[:, 1] + 0.5 * heights
 
+    # 4个偏移量放一块
     dx = box_deltas[:, 0::4]
     dy = box_deltas[:, 1::4]
     dw = box_deltas[:, 2::4]
@@ -139,6 +153,7 @@ def _bbox_pred(boxes, box_deltas):
 
     return pred_boxes
 
+
 def _clip_boxes(boxes, im_shape):
     """Clip boxes to image boundaries."""
     # x1 >= 0
@@ -150,6 +165,7 @@ def _clip_boxes(boxes, im_shape):
     # y2 < im_shape[0]
     boxes[:, 3::4] = np.minimum(boxes[:, 3::4], im_shape[0] - 1)
     return boxes
+
 
 def im_detect(net, im, boxes):
     """Detect object classes in an image given object proposals.
@@ -172,6 +188,7 @@ def im_detect(net, im, boxes):
     # on the unique subset.
     if cfg.DEDUP_BOXES > 0:
         v = np.array([1, 1e3, 1e6, 1e9, 1e12])
+        # 映射成数值进行唯一性处理
         hashes = np.round(blobs['rois'] * cfg.DEDUP_BOXES).dot(v)
         _, index, inv_index = np.unique(hashes, return_index=True,
                                         return_inverse=True)
@@ -189,6 +206,7 @@ def im_detect(net, im, boxes):
         scores = net.blobs['cls_score'].data
     else:
         # use softmax estimated probabilities
+        # 属于每一类的概率
         scores = blobs_out['cls_prob']
 
     if cfg.TEST.BBOX_REG:
@@ -206,6 +224,7 @@ def im_detect(net, im, boxes):
         pred_boxes = pred_boxes[inv_index, :]
 
     return scores, pred_boxes
+
 
 def vis_detections(im, class_name, dets, thresh=0.3):
     """Visual debugging of detections."""
@@ -226,6 +245,7 @@ def vis_detections(im, class_name, dets, thresh=0.3):
             plt.title('{}  {:.3f}'.format(class_name, score))
             plt.show()
 
+
 def apply_nms(all_boxes, thresh):
     """Apply non-maximum suppression to all predicted boxes output by the
     test_net method.
@@ -245,6 +265,7 @@ def apply_nms(all_boxes, thresh):
             nms_boxes[cls_ind][im_ind] = dets[keep, :].copy()
     return nms_boxes
 
+
 def test_net(net, imdb):
     """Test a Fast R-CNN network on an image database."""
     num_images = len(imdb.image_index)
@@ -255,6 +276,7 @@ def test_net(net, imdb):
     max_per_image = 100
     # detection thresold for each class (this is adaptively set based on the
     # max_per_set constraint)
+    # TODO(zzdxfei) 下一张图片使用上一张的统计信息?
     thresh = -np.inf * np.ones(imdb.num_classes)
     # top_scores will hold one minheap of scores per class (used to enforce
     # the max_per_set constraint)
@@ -280,17 +302,24 @@ def test_net(net, imdb):
         _t['im_detect'].toc()
 
         _t['misc'].tic()
+        # 对于每个类处理
         for j in xrange(1, imdb.num_classes):
+            # TODO(zzdxfei) gt_classes默认不使用，为0 ???
             inds = np.where((scores[:, j] > thresh[j]) &
                             (roidb[i]['gt_classes'] == 0))[0]
             cls_scores = scores[inds, j]
             cls_boxes = boxes[inds, j*4:(j+1)*4]
+
+            # 取最大分数的前100个
             top_inds = np.argsort(-cls_scores)[:max_per_image]
             cls_scores = cls_scores[top_inds]
             cls_boxes = cls_boxes[top_inds, :]
+
             # push new scores onto the minheap
             for val in cls_scores:
                 heapq.heappush(top_scores[j], val)
+
+            # 动态调整?
             # if we've collected more than the max number of detection,
             # then pop items off the minheap and update the class threshold
             if len(top_scores[j]) > max_per_set:
@@ -311,6 +340,7 @@ def test_net(net, imdb):
               .format(i + 1, num_images, _t['im_detect'].average_time,
                       _t['misc'].average_time)
 
+    # 使用上面动态获得的阈值重新组织包围盒
     for j in xrange(1, imdb.num_classes):
         for i in xrange(num_images):
             inds = np.where(all_boxes[j][i][:, -1] > thresh[j])[0]

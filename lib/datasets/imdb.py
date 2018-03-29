@@ -13,6 +13,7 @@ import numpy as np
 import scipy.sparse
 import datasets
 
+
 class imdb(object):
     """Image database."""
 
@@ -92,6 +93,7 @@ class imdb(object):
         raise NotImplementedError
 
     def append_flipped_images(self):
+        # TODO(zzdxfei) read here
         num_images = self.num_images
         widths = [PIL.Image.open(self.image_path_at(i)).size[0]
                   for i in xrange(num_images)]
