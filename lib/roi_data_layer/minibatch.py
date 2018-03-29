@@ -78,6 +78,7 @@ def _sample_rois(roidb, fg_rois_per_image, rois_per_image, num_classes):
     overlaps = roidb['max_overlaps']
     rois = roidb['boxes']
 
+    # 选择前景的索引
     # Select foreground RoIs as those with >= FG_THRESH overlap
     fg_inds = np.where(overlaps >= cfg.TRAIN.FG_THRESH)[0]
     # Guard against the case when an image has fewer than fg_rois_per_image
@@ -88,6 +89,7 @@ def _sample_rois(roidb, fg_rois_per_image, rois_per_image, num_classes):
         fg_inds = npr.choice(fg_inds, size=fg_rois_per_this_image,
                              replace=False)
 
+    # 选择背景的索引
     # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI)
     bg_inds = np.where((overlaps < cfg.TRAIN.BG_THRESH_HI) &
                        (overlaps >= cfg.TRAIN.BG_THRESH_LO))[0]
@@ -106,7 +108,7 @@ def _sample_rois(roidb, fg_rois_per_image, rois_per_image, num_classes):
     # Select sampled values from various arrays:
     labels = labels[keep_inds]
     # Clamp labels for the background RoIs to 0
-    labels[fg_rois_per_this_image:] = 0
+    labels[fg_rois_per_this_image:] = 0  # 背景标签设置为0
     overlaps = overlaps[keep_inds]
     rois = rois[keep_inds]
 
@@ -153,6 +155,9 @@ def _get_bbox_regression_labels(bbox_target_data, num_classes):
     by the network (i.e. only one class has non-zero targets). The loss weights
     are similarly expanded.
 
+    bbox_target_data中，每一行为(类别，包围盒坐标)
+    输出中，每行共有K x 4列(K为总类别个数)，其包围盒坐标放在所属的k类下面．
+
     Returns:
         bbox_target_data (ndarray): N x 4K blob of regression targets
         bbox_loss_weights (ndarray): N x 4K blob of loss weights
@@ -160,6 +165,7 @@ def _get_bbox_regression_labels(bbox_target_data, num_classes):
     clss = bbox_target_data[:, 0]
     bbox_targets = np.zeros((clss.size, 4 * num_classes), dtype=np.float32)
     bbox_loss_weights = np.zeros(bbox_targets.shape, dtype=np.float32)
+
     inds = np.where(clss > 0)[0]
     for ind in inds:
         cls = clss[ind]

@@ -18,6 +18,12 @@ def prepare_roidb(imdb):
     overlap, taken over ground-truth boxes, between each ROI and
     each ground-truth box. The class with maximum overlap is also
     recorded.
+
+    对roidb中的每一项添加信息，
+        image: 图片的存放位置
+        max_classes: iou最高的gt_box的标签
+        max_overlaps: 最高的iou
+
     """
     roidb = imdb.roidb
     for i in xrange(len(imdb.image_index)):
@@ -41,12 +47,14 @@ def prepare_roidb(imdb):
 
 def add_bbox_regression_targets(roidb):
     """Add information needed to train bounding-box regressors."""
+
     assert len(roidb) > 0
     assert 'max_classes' in roidb[0], 'Did you call prepare_roidb first?'
 
     num_images = len(roidb)
     # Infer number of classes from the number of columns in gt_overlaps
     num_classes = roidb[0]['gt_overlaps'].shape[1]
+
     for im_i in xrange(num_images):
         rois = roidb[im_i]['boxes']
         max_overlaps = roidb[im_i]['max_overlaps']
@@ -56,11 +64,16 @@ def add_bbox_regression_targets(roidb):
 
     # Compute values needed for means and stds
     # var(x) = E(x^2) - E(x)^2
+    # 记录每一类有多少个ROI
     class_counts = np.zeros((num_classes, 1)) + cfg.EPS
+    # 记录每一类的坐标之和
     sums = np.zeros((num_classes, 4))
+    # 记录每一类的坐标的平方的和
     squared_sums = np.zeros((num_classes, 4))
+
     for im_i in xrange(num_images):
         targets = roidb[im_i]['bbox_targets']
+        # 对每一类单独处理
         for cls in xrange(1, num_classes):
             cls_inds = np.where(targets[:, 0] == cls)[0]
             if cls_inds.size > 0:
@@ -68,6 +81,7 @@ def add_bbox_regression_targets(roidb):
                 sums[cls, :] += targets[cls_inds, 1:].sum(axis=0)
                 squared_sums[cls, :] += (targets[cls_inds, 1:] ** 2).sum(axis=0)
 
+    # 每一类中每个目标值的均值和方差
     means = sums / class_counts
     stds = np.sqrt(squared_sums / class_counts - means ** 2)
 
@@ -85,21 +99,31 @@ def add_bbox_regression_targets(roidb):
 
 
 def _compute_targets(rois, overlaps, labels):
-    """Compute bounding-box regression targets for an image."""
+    """Compute bounding-box regression targets for an image.
+
+    获得一张图片中所有ROI的目标包围盒位置以及标签
+    包围盒位置为:
+        中心坐标值/长度
+        log(gt_length / ex_length)
+
+    """
     # Ensure ROIs are floats
     rois = rois.astype(np.float, copy=False)
 
     # Indices of ground-truth ROIs
-    gt_inds = np.where(overlaps == 1)[0]
+    gt_inds = np.where(overlaps == 1)[0]  # ground-truth本身
     # Indices of examples for which we try to make predictions
+    # 要进行包围盒预测的roi索引
     ex_inds = np.where(overlaps >= cfg.TRAIN.BBOX_THRESH)[0]
 
     # Get IoU overlap between each ex ROI and gt ROI
+    # 对每一个要预测的Roi计算其与ground-truth的iou
     ex_gt_overlaps = utils.cython_bbox.bbox_overlaps(rois[ex_inds, :],
                                                      rois[gt_inds, :])
 
     # Find which gt ROI each ex ROI has max overlap with:
     # this will be the ex ROI's gt target
+    # iou最大的就是这个roi的目标值
     gt_assignment = ex_gt_overlaps.argmax(axis=1)
     gt_rois = rois[gt_inds[gt_assignment], :]
     ex_rois = rois[ex_inds, :]
@@ -114,8 +138,10 @@ def _compute_targets(rois, overlaps, labels):
     gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
     gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
 
+    # 中心坐标偏移
     targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
     targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
+    # 尺寸偏移
     targets_dw = np.log(gt_widths / ex_widths)
     targets_dh = np.log(gt_heights / ex_heights)
 
