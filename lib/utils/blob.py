@@ -15,7 +15,6 @@ import cv2
 
 def im_list_to_blob(ims):
     """Convert a list of images into a network input.
-
     Assumes images are already prepared (means subtracted, BGR order, ...).
     """
     # 计算图片集的最大尺寸

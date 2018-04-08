@@ -25,12 +25,15 @@ def get_minibatch(roidb, num_classes):
     assert(cfg.TRAIN.BATCH_SIZE % num_images == 0), \
         'num_images ({}) must divide BATCH_SIZE ({})'. \
         format(num_images, cfg.TRAIN.BATCH_SIZE)
+
     # 每张图片要产生的Roi的个数
     rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
     # 每张图片要产生的前景Roi个数
     fg_rois_per_image = np.round(cfg.TRAIN.FG_FRACTION * rois_per_image)
 
     # Get the input image blob, formatted for caffe
+    # im_blob为caffe blob，每个batch存放一张图片
+    # im_scales为每张图片对应的放缩比例
     im_blob, im_scales = _get_image_blob(roidb, random_scale_inds)
 
     # Now, build the region of interest and label blobs
@@ -45,13 +48,14 @@ def get_minibatch(roidb, num_classes):
                            num_classes)
 
         # Add to RoIs blob
+        # rois随着图像的放缩比例进行放缩
         rois = _project_im_rois(im_rois, im_scales[im_i])
         batch_ind = im_i * np.ones((rois.shape[0], 1))
         rois_blob_this_image = np.hstack((batch_ind, rois))
         rois_blob = np.vstack((rois_blob, rois_blob_this_image))
 
         # Add to labels, bbox targets, and bbox loss blobs
-        labels_blob = np.hstack((labels_blob, labels))
+        labels_blob = np.hstack((labels_blob, labels))  # 1D
         bbox_targets_blob = np.vstack((bbox_targets_blob, bbox_targets))
         bbox_loss_blob = np.vstack((bbox_loss_blob, bbox_loss))
         # all_overlaps = np.hstack((all_overlaps, overlaps))
@@ -72,10 +76,14 @@ def get_minibatch(roidb, num_classes):
 def _sample_rois(roidb, fg_rois_per_image, rois_per_image, num_classes):
     """Generate a random sample of RoIs comprising foreground and background
     examples.
+
+    从rois中选择一定数量的fg rois和bg rois，获取这些rois的信息，并进行bbox_targets的转换
+
     """
     # label = class RoI has max overlap with
     labels = roidb['max_classes']
     overlaps = roidb['max_overlaps']
+    # 包含有前景roi和背景roi
     rois = roidb['boxes']
 
     # 选择前景的索引
@@ -112,6 +120,7 @@ def _sample_rois(roidb, fg_rois_per_image, rois_per_image, num_classes):
     overlaps = overlaps[keep_inds]
     rois = rois[keep_inds]
 
+    # 在列上进行类别的扩充
     bbox_targets, bbox_loss_weights = \
             _get_bbox_regression_labels(roidb['bbox_targets'][keep_inds, :],
                                         num_classes)
@@ -125,13 +134,14 @@ def _get_image_blob(roidb, scale_inds):
     num_images = len(roidb)
     processed_ims = []
     im_scales = []
+    # 对于每张图片，放缩随机尺寸
     for i in xrange(num_images):
         im = cv2.imread(roidb[i]['image'])
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]
         # 目标尺寸
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]
-        # resize后的图片，放缩比例
+        # (resize后的图片，放缩比例)
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)
         im_scales.append(im_scale)

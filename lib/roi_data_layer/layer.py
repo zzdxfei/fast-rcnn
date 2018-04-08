@@ -8,6 +8,7 @@
 """The data layer used during training to train a Fast R-CNN network.
 
 训练模型时使用的数据层
+1. roidb中是以图片为一个单位的;
 
 RoIDataLayer implements a Caffe Python layer.
 """
@@ -29,10 +30,8 @@ class RoIDataLayer(caffe.Layer):
 
     def _get_next_minibatch_inds(self):
         """Return the roidb indices for the next minibatch.
-
-        最后一个batch丢弃
-
         """
+        # 最后一个batch丢弃
         if self._cur + cfg.TRAIN.IMS_PER_BATCH >= len(self._roidb):
             self._shuffle_roidb_inds()
 

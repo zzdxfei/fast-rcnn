@@ -8,22 +8,19 @@ inoremap <expr> <Up> pumvisible() ? "\" : "\<Up>"
 inoremap <expr> <S-Tab> pumvisible() ? "\" : "\<S-Tab>"
 inoremap <expr> <Down> pumvisible() ? "\" : "\<Down>"
 inoremap <silent> <C-Tab> =UltiSnips#ListSnippets()
-inoremap <silent> <SNR>21_AutoPairsReturn =AutoPairsReturn()
+inoremap <silent> <SNR>28_AutoPairsReturn =AutoPairsReturn()
 nnoremap  3
 snoremap <silent>  c
 xnoremap <silent> <NL> :call UltiSnips#SaveLastVisualSelection()gvs
 snoremap <silent> <NL> :call UltiSnips#ExpandSnippetOrJump()
-nmap <silent> <NL> <Plug>(ale_next_wrap)
-nmap <silent>  <Plug>(ale_previous_wrap)
 xnoremap <silent>  :call multiple_cursors#new("v", 0)
 nnoremap <silent>  :call multiple_cursors#new("n", 1)
+map  <Plug>(ctrlp)
 snoremap  "_c
+tnoremap  N
 nnoremap  3
-vnoremap  `
-onoremap  `
-tnoremap  `
+tnoremap  N
 map    <Plug>(easymotion-prefix)
-nnoremap  v :edit ~/.vim/vimrc
 nnoremap  o :q
 noremap  w :w
 nmap  k <Plug>(easymotion-k)
@@ -32,15 +29,11 @@ nnoremap  c :YcmCompleter GoToDeclaration
 nnoremap  d :YcmCompleter GoToDefinition
 nnoremap  h :YcmCompleter GoToInclude
 xmap S <Plug>VSurround
-nnoremap `` 
-nnoremap ` 
-xnoremap ` 
-onoremap ` 
-tnoremap ` N
 nmap cS <Plug>CSurround
 nmap cs <Plug>Csurround
+nmap cr <Plug>Coerce
 nmap ds <Plug>Dsurround
-xmap gx <Plug>NetrwBrowseXVis
+vmap gx <Plug>NetrwBrowseXVis
 nmap gx <Plug>NetrwBrowseX
 xmap gS <Plug>VgSurround
 nmap ga <Plug>(EasyAlign)
@@ -428,6 +421,9 @@ snoremap <silent> <Del> c
 snoremap <silent> <BS> c
 snoremap <silent> <C-Tab> :call UltiSnips#ListSnippets()
 nnoremap <silent> <Plug>SurroundRepeat .
+vnoremap <silent> <Plug>(calendar) :Calendar
+nnoremap <silent> <Plug>(calendar) :Calendar
+nnoremap <SNR>23_: :=v:count ? v:count : ''
 nnoremap <silent> <Plug>(ale_go_to_definition_in_tab) :ALEGoToDefinitionInTab
 nnoremap <silent> <Plug>(ale_go_to_definition) :ALEGoToDefinition
 nnoremap <silent> <Plug>(ale_fix) :ALEFix
@@ -447,9 +443,10 @@ nnoremap <silent> <Plug>(ale_next_wrap) :ALENextWrap
 nnoremap <silent> <Plug>(ale_next) :ALENext
 nnoremap <silent> <Plug>(ale_previous_wrap) :ALEPreviousWrap
 nnoremap <silent> <Plug>(ale_previous) :ALEPrevious
+nnoremap <silent> <Plug>(ctrlp) :CtrlP
 nnoremap <F4> :Fww
-nnoremap <Down> :resize -3
-nnoremap <Up> :resize +7
+nnoremap <Down> :resize -2
+nnoremap <Up> :resize +2
 nnoremap <Right> :vertical resize +2
 nnoremap <Left> :vertical resize -2
 nnoremap <F3> :Tagbar
@@ -459,13 +456,10 @@ imap s <Plug>Isurround
 inoremap <expr> 	 pumvisible() ? "\" : "\	"
 inoremap <silent> <NL> =UltiSnips#ExpandSnippetOrJump()
 imap  <Plug>Isurround
-cnoremap  `
-inoremap  `
-cnoremap ` 
-inoremap ` 
 let &cpo=s:cpo_save
 unlet s:cpo_save
 set autowrite
+set background=dark
 set balloonexpr=ale#balloon#Expr()
 set completefunc=youcompleteme#Complete
 set completeopt=preview,menuone
@@ -478,8 +472,7 @@ set incsearch
 set laststatus=2
 set mouse=n
 set omnifunc=youcompleteme#OmniComplete
-set runtimepath=~/.vim,~/.vim/bundle/Vundle.vim,~/.vim/bundle/ale,~/.vim/bundle/vim-easy-align,~/.vim/bundle/vim-multiple-cursors,~/.vim/bundle/vim-surround,~/.vim/bundle/auto-pairs,~/.vim/bundle/ultisnips,~/.vim/bundle/vim-snippets,~/.vim/bundle/YouCompleteMe,~/.vim/bundle/vim-easymotion,~/.vim/bundle/tabular,~/.vim/bundle/vim-markdown,~/.vim/bundle/vim-instant-markdown,~/.vim/bundle/nerdtree,~/.vim/bundle/vim-airline,~/.vim/bundle/tagbar,~/.vim/bundle/vim,~/.vim/bundle/papercolor-theme,~/.vim/bundle/vim-colors-solarized,/usr/local/share/vim/vimfiles,/usr/local/share/vim/vim80,/usr/local/share/vim/vimfiles/after,~/.vim/after,~/.vim/bundle/Vundle.vim,~/.vim/bundle/Vundle.vim/after,~/.vim/bundle/ale/after,~/.vim/bundle/vim-easy-align/after,~/.vim/bundle/vim-multiple-cursors/after,~/.vim/bundle/vim-surround/after,~/.vim/bundle/auto-pairs/after,~/.vim/bundle/ultisnips/after,~/.vim/bundle/vim-snippets/after,~/.vim/bundle/YouCompleteMe/after,~/.vim/bundle/vim-easymotion/after,~/.vim/bundle/tabular/after,~/.vim/bundle/vim-markdown/after,~/.vim/bundle/vim-instant-markdown/after,~/.vim/bundle/nerdtree/after,~/.vim/bundle/vim-airline/after,~/.vim/bundle/tagbar/after,~/.vim/bundle/vim/after,~/.vim/bundle/papercolor-theme/after,~/.vim/bundle/vim-colors-solarized/after
-set scrolloff=3
+set runtimepath=~/.vim,~/.vim/bundle/Vundle.vim,~/.vim/bundle/ctrlp.vim,~/.vim/bundle/ale,~/.vim/bundle/vim-easy-align,~/.vim/bundle/vim-fugitive,~/.vim/bundle/calendar.vim,~/.vim/bundle/vim-abolish,~/.vim/bundle/vim-multiple-cursors,~/.vim/bundle/vim-surround,~/.vim/bundle/auto-pairs,~/.vim/bundle/vim-cpplint,~/.vim/bundle/ultisnips,~/.vim/bundle/vim-snippets,~/.vim/bundle/YouCompleteMe,~/.vim/bundle/vim-easymotion,~/.vim/bundle/tabular,~/.vim/bundle/vim-markdown,~/.vim/bundle/nerdtree,~/.vim/bundle/vim-airline,~/.vim/bundle/vim-instant-markdown,~/.vim/bundle/tagbar,~/.vim/bundle/vim,~/.vim/bundle/papercolor-theme,~/.vim/bundle/vim-colors-solarized,/usr/local/share/vim/vimfiles,/usr/local/share/vim/vim80,/usr/local/share/vim/vimfiles/after,~/.vim/after,~/.vim/bundle/Vundle.vim,~/.vim/bundle/Vundle.vim/after,~/.vim/bundle/ctrlp.vim/after,~/.vim/bundle/ale/after,~/.vim/bundle/vim-easy-align/after,~/.vim/bundle/vim-fugitive/after,~/.vim/bundle/calendar.vim/after,~/.vim/bundle/vim-abolish/after,~/.vim/bundle/vim-multiple-cursors/after,~/.vim/bundle/vim-surround/after,~/.vim/bundle/auto-pairs/after,~/.vim/bundle/vim-cpplint/after,~/.vim/bundle/ultisnips/after,~/.vim/bundle/vim-snippets/after,~/.vim/bundle/YouCompleteMe/after,~/.vim/bundle/vim-easymotion/after,~/.vim/bundle/tabular/after,~/.vim/bundle/vim-markdown/after,~/.vim/bundle/nerdtree/after,~/.vim/bundle/vim-airline/after,~/.vim/bundle/vim-instant-markdown/after,~/.vim/bundle/tagbar/after,~/.vim/bundle/vim/after,~/.vim/bundle/papercolor-theme/after,~/.vim/bundle/vim-colors-solarized/after
 set shiftwidth=4
 set shortmess=Ic
 set smartindent
@@ -488,7 +481,7 @@ set tabstop=4
 set termencoding=utf-8
 set updatetime=2000
 set wildignore=*.pyc
-set window=61
+set window=58
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -497,41 +490,23 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +14 datasets/factory.py
-badd +118 datasets/imdb.py
-badd +169 fast_rcnn/config.py
-badd +327 fast_rcnn/test.py
-badd +124 fast_rcnn/train.py
-badd +6 roi_data_layer/__init__.py
-badd +1 roi_data_layer/layer.py
-badd +28 roi_data_layer/minibatch.py
-badd +1 roi_data_layer/roidb.py
-badd +1 setup.py
-badd +20 utils/nms.py
-badd +8 utils/timer.py
-badd +3 Makefile
-badd +33 ~/Desktop/fast-rcnn/lib/utils/blob.py
+badd +0 roi_data_layer/layer.py
+badd +194 roi_data_layer/minibatch.py
+badd +17 ~/Desktop/fast-rcnn/lib/utils/blob.py
 argglobal
 silent! argdel *
-edit roi_data_layer/minibatch.py
+edit roi_data_layer/layer.py
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
 1wincmd h
-wincmd _ | wincmd |
-split
-1wincmd k
-wincmd w
 wincmd w
 set nosplitbelow
 set nosplitright
 wincmd t
 set winminheight=1 winheight=1 winminwidth=1 winwidth=1
-exe '1resize ' . ((&lines * 37 + 31) / 62)
-exe 'vert 1resize ' . ((&columns * 115 + 115) / 231)
-exe '2resize ' . ((&lines * 22 + 31) / 62)
-exe 'vert 2resize ' . ((&columns * 115 + 115) / 231)
-exe 'vert 3resize ' . ((&columns * 115 + 115) / 231)
+exe 'vert 1resize ' . ((&columns * 114 + 113) / 227)
+exe 'vert 2resize ' . ((&columns * 112 + 113) / 227)
 argglobal
 let s:cpo_save=&cpo
 set cpo&vim
@@ -546,12 +521,8 @@ inoremap <buffer> <silent> " =AutoPairsInsert('"')
 inoremap <buffer> <silent> ' =AutoPairsInsert('''')
 inoremap <buffer> <silent> ( =AutoPairsInsert('(')
 inoremap <buffer> <silent> ) =AutoPairsInsert(')')
-nnoremap <buffer> <silent> î :call AutoPairsJump()
-xnoremap <buffer> <silent> î :call AutoPairsJump()
-onoremap <buffer> <silent> î :call AutoPairsJump()
-nnoremap <buffer> <silent> ð :call AutoPairsToggle()
-xnoremap <buffer> <silent> ð :call AutoPairsToggle()
-onoremap <buffer> <silent> ð :call AutoPairsToggle()
+noremap <buffer> <silent> î :call AutoPairsJump()
+noremap <buffer> <silent> ð :call AutoPairsToggle()
 inoremap <buffer> <silent> [ =AutoPairsInsert('[')
 inoremap <buffer> <silent> ] =AutoPairsInsert(']')
 inoremap <buffer> <silent> { =AutoPairsInsert('{')
@@ -597,13 +568,12 @@ setlocal filetype=python
 endif
 setlocal fixendofline
 setlocal foldcolumn=0
-setlocal nofoldenable
+setlocal foldenable
 setlocal foldexpr=0
 setlocal foldignore=#
 setlocal foldlevel=0
 setlocal foldmarker={{{,}}}
-set foldmethod=indent
-setlocal foldmethod=indent
+setlocal foldmethod=manual
 setlocal foldminlines=1
 setlocal foldnestmax=20
 setlocal foldtext=foldtext()
@@ -673,15 +643,16 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 42 - ((3 * winheight(0) + 18) / 37)
+silent! normal! zE
+let s:l = 56 - ((28 * winheight(0) + 28) / 57)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-42
-normal! 05|
+56
+normal! 09|
 wincmd w
 argglobal
-if bufexists('roi_data_layer/roidb.py') | buffer roi_data_layer/roidb.py | else | edit roi_data_layer/roidb.py | endif
+if bufexists('roi_data_layer/minibatch.py') | buffer roi_data_layer/minibatch.py | else | edit roi_data_layer/minibatch.py | endif
 let s:cpo_save=&cpo
 set cpo&vim
 inoremap <buffer> <silent> <BS> =AutoPairsDelete()
@@ -742,13 +713,12 @@ setlocal filetype=python
 endif
 setlocal fixendofline
 setlocal foldcolumn=0
-setlocal nofoldenable
+setlocal foldenable
 setlocal foldexpr=0
 setlocal foldignore=#
 setlocal foldlevel=0
 setlocal foldmarker={{{,}}}
-set foldmethod=indent
-setlocal foldmethod=indent
+setlocal foldmethod=manual
 setlocal foldminlines=1
 setlocal foldnestmax=20
 setlocal foldtext=foldtext()
@@ -779,7 +749,7 @@ setlocal nrformats=bin,octal,hex
 set number
 setlocal number
 setlocal numberwidth=4
-setlocal omnifunc=youcompleteme#OmniComplete
+setlocal omnifunc=pythoncomplete#Complete
 setlocal path=
 setlocal nopreserveindent
 setlocal nopreviewwindow
@@ -818,163 +788,16 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 42 - ((18 * winheight(0) + 11) / 22)
+silent! normal! zE
+let s:l = 75 - ((23 * winheight(0) + 28) / 57)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-42
-normal! 05|
-wincmd w
-argglobal
-if bufexists('roi_data_layer/layer.py') | buffer roi_data_layer/layer.py | else | edit roi_data_layer/layer.py | endif
-let s:cpo_save=&cpo
-set cpo&vim
-inoremap <buffer> <silent> <BS> =AutoPairsDelete()
-inoremap <buffer> <silent> î :call AutoPairsJump()a
-inoremap <buffer> <silent> <expr> ð AutoPairsToggle()
-inoremap <buffer> <silent> â =AutoPairsBackInsert()
-inoremap <buffer> <silent> å =AutoPairsFastWrap()
-inoremap <buffer> <silent>  =AutoPairsDelete()
-inoremap <buffer> <silent>   =AutoPairsSpace()
-inoremap <buffer> <silent> " =AutoPairsInsert('"')
-inoremap <buffer> <silent> ' =AutoPairsInsert('''')
-inoremap <buffer> <silent> ( =AutoPairsInsert('(')
-inoremap <buffer> <silent> ) =AutoPairsInsert(')')
-noremap <buffer> <silent> î :call AutoPairsJump()
-noremap <buffer> <silent> ð :call AutoPairsToggle()
-inoremap <buffer> <silent> [ =AutoPairsInsert('[')
-inoremap <buffer> <silent> ] =AutoPairsInsert(']')
-inoremap <buffer> <silent> { =AutoPairsInsert('{')
-inoremap <buffer> <silent> } =AutoPairsInsert('}')
-let &cpo=s:cpo_save
-unlet s:cpo_save
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal backupcopy=
-setlocal balloonexpr=
-setlocal nobinary
-setlocal nobreakindent
-setlocal breakindentopt=
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal colorcolumn=
-setlocal comments=b:#,fb:-
-setlocal commentstring=#\ %s
-setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
-setlocal completefunc=youcompleteme#Complete
-setlocal nocopyindent
-setlocal cryptmethod=
-setlocal nocursorbind
-setlocal nocursorcolumn
-set cursorline
-setlocal cursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'python'
-setlocal filetype=python
-endif
-setlocal fixendofline
-setlocal foldcolumn=0
-setlocal nofoldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-set foldmethod=indent
-setlocal foldmethod=indent
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal formatprg=
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=-1
-setlocal include=^\\s*\\(from\\|import\\)
-setlocal includeexpr=substitute(v:fname,'\\.','/','g')
-setlocal indentexpr=GetPythonIndent(v:lnum)
-setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=pydoc
-setlocal nolinebreak
-setlocal nolisp
-setlocal lispwords=
-setlocal nolist
-setlocal makeencoding=
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=bin,octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=youcompleteme#OmniComplete
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal signcolumn=auto
-setlocal smartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=%!airline#statusline(3)
-setlocal suffixesadd=.py
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'python'
-setlocal syntax=python
-endif
-setlocal tabstop=8
-setlocal tagcase=
-setlocal tags=
-setlocal termkey=
-setlocal termsize=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal noundofile
-setlocal undolevels=-123456
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-let s:l = 55 - ((30 * winheight(0) + 30) / 60)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-55
+75
 normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 37 + 31) / 62)
-exe 'vert 1resize ' . ((&columns * 115 + 115) / 231)
-exe '2resize ' . ((&lines * 22 + 31) / 62)
-exe 'vert 2resize ' . ((&columns * 115 + 115) / 231)
-exe 'vert 3resize ' . ((&columns * 115 + 115) / 231)
+exe 'vert 1resize ' . ((&columns * 114 + 113) / 227)
+exe 'vert 2resize ' . ((&columns * 112 + 113) / 227)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
