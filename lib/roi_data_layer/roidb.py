@@ -36,7 +36,8 @@ def prepare_roidb(imdb):
         max_classes = gt_overlaps.argmax(axis=1)
         roidb[i]['max_classes'] = max_classes
         roidb[i]['max_overlaps'] = max_overlaps
-        # sanity checks
+
+        # 检查数据是否正确
         # max overlap of 0 => class should be zero (background)
         zero_inds = np.where(max_overlaps == 0)[0]
         assert all(max_classes[zero_inds] == 0)
@@ -101,16 +102,14 @@ def add_bbox_regression_targets(roidb):
 def _compute_targets(rois, overlaps, labels):
     """Compute bounding-box regression targets for an image.
 
-    获得一张图片中所有ROI的目标包围盒位置以及标签
-    包围盒位置为:
-        中心坐标值/长度
-        log(gt_length / ex_length)
+    获得一张图片中所有ROI的目标回归包围盒位置以及标签
 
     """
     # Ensure ROIs are floats
     rois = rois.astype(np.float, copy=False)
 
     # Indices of ground-truth ROIs
+    # iou == 1
     gt_inds = np.where(overlaps == 1)[0]  # ground-truth本身
     # Indices of examples for which we try to make predictions
     # 要进行包围盒预测的roi索引
@@ -124,7 +123,10 @@ def _compute_targets(rois, overlaps, labels):
     # Find which gt ROI each ex ROI has max overlap with:
     # this will be the ex ROI's gt target
     # iou最大的就是这个roi的目标值
+    # 每一个ex_inds对应一个
     gt_assignment = ex_gt_overlaps.argmax(axis=1)
+
+    # 一一对应的关系，训练样本及对应的
     gt_rois = rois[gt_inds[gt_assignment], :]
     ex_rois = rois[ex_inds, :]
 

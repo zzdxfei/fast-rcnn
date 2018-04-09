@@ -118,18 +118,22 @@ def _bbox_pred(boxes, box_deltas):
     """Transform the set of class-agnostic boxes into class-specific boxes
     by applying the predicted offsets (box_deltas)
 
+    从box的偏移量得到校正之后的包围盒
+
     Results:
         N * 4K，N为ROI区域的个数，K为类别个数
     """
     if boxes.shape[0] == 0:
         return np.zeros((0, box_deltas.shape[1]))
 
+    # 输入box
     boxes = boxes.astype(np.float, copy=False)
     widths = boxes[:, 2] - boxes[:, 0] + cfg.EPS
     heights = boxes[:, 3] - boxes[:, 1] + cfg.EPS
     ctr_x = boxes[:, 0] + 0.5 * widths
     ctr_y = boxes[:, 1] + 0.5 * heights
 
+    # 预测的校正量
     # 4个偏移量放一块
     dx = box_deltas[:, 0::4]
     dy = box_deltas[:, 1::4]
@@ -267,7 +271,11 @@ def apply_nms(all_boxes, thresh):
 
 
 def test_net(net, imdb):
-    """Test a Fast R-CNN network on an image database."""
+    """Test a Fast R-CNN network on an image database.
+
+    对一个图片数据集进行检测
+
+    """
     num_images = len(imdb.image_index)
     # heuristic: keep an average of 40 detections per class per images prior
     # to NMS
@@ -276,10 +284,12 @@ def test_net(net, imdb):
     max_per_image = 100
     # detection thresold for each class (this is adaptively set based on the
     # max_per_set constraint)
-    # TODO(zzdxfei) 下一张图片使用上一张的统计信息?
+
     thresh = -np.inf * np.ones(imdb.num_classes)
+
     # top_scores will hold one minheap of scores per class (used to enforce
     # the max_per_set constraint)
+    # 对每一个类维护一个小顶堆
     top_scores = [[] for _ in xrange(imdb.num_classes)]
     # all detections are collected into:
     #    all_boxes[cls][image] = N x 5 array of detections in
@@ -295,6 +305,8 @@ def test_net(net, imdb):
     _t = {'im_detect' : Timer(), 'misc' : Timer()}
 
     roidb = imdb.roidb
+
+    # 对数据集中每张图片进行检测
     for i in xrange(num_images):
         im = cv2.imread(imdb.image_path_at(i))
         _t['im_detect'].tic()
@@ -319,7 +331,6 @@ def test_net(net, imdb):
             for val in cls_scores:
                 heapq.heappush(top_scores[j], val)
 
-            # 动态调整?
             # if we've collected more than the max number of detection,
             # then pop items off the minheap and update the class threshold
             if len(top_scores[j]) > max_per_set:

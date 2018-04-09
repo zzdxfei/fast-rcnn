@@ -55,7 +55,14 @@ class SolverWrapper(object):
 
         if cfg.TRAIN.BBOX_REG:
             # save original values
+            """
+            y = w * x + b
+            y * std + mean = (w * x + b) * std + mean
+                           = w * std * x + b * std + mean
+            """
+            # W
             orig_0 = net.params['bbox_pred'][0].data.copy()
+            # b
             orig_1 = net.params['bbox_pred'][1].data.copy()
 
             # scale and shift with bbox reg unnormalization; then save snapshot

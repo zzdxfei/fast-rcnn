@@ -110,7 +110,7 @@ class RoIDataLayer(caffe.Layer):
 
             # bbox_loss_weights blob: At most 4 targets per roi are active;
             # thisbinary vector sepcifies the subset of active targets
-            # 用于标记每个Roi中哪些目标是激活的，这是一个bool值数组
+            # 用于标记每个Roi中哪些目标是激活的
             top[4].reshape(1, self._num_classes * 4)
 
     def forward(self, bottom, top):
@@ -131,6 +131,7 @@ class RoIDataLayer(caffe.Layer):
     def reshape(self, bottom, top):
         """Reshaping happens during the call to forward."""
         pass
+
 
 class BlobFetcher(Process):
     """Experimental class for prefetching blobs in a separate process."""
