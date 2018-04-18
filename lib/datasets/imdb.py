@@ -93,7 +93,10 @@ class imdb(object):
         raise NotImplementedError
 
     def append_flipped_images(self):
-        # TODO(zzdxfei) read here
+        """将翻转后的boxes放在后面
+        roidb前面存储原始包围盒，后面存储翻转后的包围盒．
+        NOTE:没roidb中的每一项，仅是boxes的(x,y)坐标发生了翻转．
+        """
         num_images = self.num_images
         widths = [PIL.Image.open(self.image_path_at(i)).size[0]
                   for i in xrange(num_images)]
@@ -112,11 +115,17 @@ class imdb(object):
         self._image_index = self._image_index * 2
 
     def evaluate_recall(self, candidate_boxes, ar_thresh=0.5):
+        """
+        Args:
+            candidate_boxes: 一个list，每项为一张图片的包围盒信息．
+
+        """
         # Record max overlap value for each gt box
         # Return vector of overlap values
         gt_overlaps = np.zeros(0)
         for i in xrange(self.num_images):
             gt_inds = np.where(self.roidb[i]['gt_classes'] > 0)[0]
+            # 一张图片中真实包围盒的位置
             gt_boxes = self.roidb[i]['boxes'][gt_inds, :]
 
             boxes = candidate_boxes[i]
@@ -127,12 +136,22 @@ class imdb(object):
 
             # gt_overlaps = np.hstack((gt_overlaps, overlaps.max(axis=0)))
             _gt_overlaps = np.zeros((gt_boxes.shape[0]))
+
+            # 对于每一个真实包围盒
+            # TODO(zzdxfei)
             for j in xrange(gt_boxes.shape[0]):
+                # 最大的真实包围盒的索引
                 argmax_overlaps = overlaps.argmax(axis=0)
+                # 最大的真实包围盒的值
                 max_overlaps = overlaps.max(axis=0)
+
+                # 得分最高的box的索引
                 gt_ind = max_overlaps.argmax()
+                # 得分最高的box的值
                 gt_ovr = max_overlaps.max()
+
                 assert(gt_ovr >= 0)
+
                 box_ind = argmax_overlaps[gt_ind]
                 _gt_overlaps[j] = overlaps[box_ind, gt_ind]
                 assert(_gt_overlaps[j] == gt_ovr)
