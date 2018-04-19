@@ -31,6 +31,8 @@ class pascal_voc(datasets.imdb):
                          'cow', 'diningtable', 'dog', 'horse',
                          'motorbike', 'person', 'pottedplant',
                          'sheep', 'sofa', 'train', 'tvmonitor')
+
+        # 每个类别对应的索引号
         self._class_to_ind = dict(zip(self.classes, xrange(self.num_classes)))
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()
@@ -96,6 +98,7 @@ class pascal_voc(datasets.imdb):
             print '{} gt roidb loaded from {}'.format(self.name, cache_file)
             return roidb
 
+        # 每张图片获取其ground truth
         gt_roidb = [self._load_pascal_annotation(index)
                     for index in self.image_index]
         with open(cache_file, 'wb') as fid:
@@ -121,6 +124,7 @@ class pascal_voc(datasets.imdb):
             return roidb
 
         if int(self._year) == 2007 or self._image_set != 'test':
+            # 将ground truth和选择搜索获得的区域候选合并
             gt_roidb = self.gt_roidb()
             ss_roidb = self._load_selective_search_roidb(gt_roidb)
             roidb = datasets.imdb.merge_roidbs(gt_roidb, ss_roidb)
@@ -219,6 +223,7 @@ class pascal_voc(datasets.imdb):
                     str(get_data_from_tag(obj, "name")).lower().strip()]
             boxes[ix, :] = [x1, y1, x2, y2]
             gt_classes[ix] = cls
+            # 所有都为1.0
             overlaps[ix, cls] = 1.0
 
         overlaps = scipy.sparse.csr_matrix(overlaps)
@@ -237,6 +242,8 @@ class pascal_voc(datasets.imdb):
         # VOCdevkit/results/VOC2007/Main/comp4-44503_det_test_aeroplane.txt
         path = os.path.join(self._devkit_path, 'results', 'VOC' + self._year,
                             'Main', comp_id + '_')
+
+        # 对每个类别写一个文件
         for cls_ind, cls in enumerate(self.classes):
             if cls == '__background__':
                 continue
@@ -248,6 +255,9 @@ class pascal_voc(datasets.imdb):
                     if dets == []:
                         continue
                     # the VOCdevkit expects 1-based indices
+
+                    # VI(zzdxfei) VOCdevkit中使用1开始的索引
+                    # 每行为图片编号，得分，包围盒
                     for k in xrange(dets.shape[0]):
                         f.write('{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.
                                 format(index, dets[k, -1],

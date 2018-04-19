@@ -15,8 +15,11 @@ import datasets
 
 
 class imdb(object):
-    """Image database."""
+    """Image database.
 
+    roidb存储roi区域的信息。
+
+    """
     def __init__(self, name):
         self._name = name
         self._num_classes = 0
@@ -169,11 +172,13 @@ class imdb(object):
 
         step = 0.001
 
+        # 采用不同的阈值，获得召回率
         thresholds = np.minimum(np.arange(0.5, 1.0 + step, step), 1.0)
         recalls = np.zeros_like(thresholds)
         for i, t in enumerate(thresholds):
             recalls[i] = (gt_overlaps >= t).sum() / float(num_pos)
         # 积分
+        # TODO(zzdxfei) what's the fack! "ar"
         ar = 2 * np.trapz(recalls, thresholds)
 
         return ar, gt_overlaps, recalls, thresholds
