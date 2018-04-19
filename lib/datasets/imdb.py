@@ -138,23 +138,27 @@ class imdb(object):
             _gt_overlaps = np.zeros((gt_boxes.shape[0]))
 
             # 对于每一个真实包围盒
-            # TODO(zzdxfei)
             for j in xrange(gt_boxes.shape[0]):
-                # 最大的真实包围盒的索引
+                # 和每个gt最大的iou的索引
                 argmax_overlaps = overlaps.argmax(axis=0)
-                # 最大的真实包围盒的值
+                # 和每个gt最大的iou的值
                 max_overlaps = overlaps.max(axis=0)
 
-                # 得分最高的box的索引
+                # 最大的iou的索引
                 gt_ind = max_overlaps.argmax()
-                # 得分最高的box的值
+                # 最大的iou的值
                 gt_ovr = max_overlaps.max()
 
                 assert(gt_ovr >= 0)
 
+                # 最大的包围盒的索引
                 box_ind = argmax_overlaps[gt_ind]
+                # 最大的iou
                 _gt_overlaps[j] = overlaps[box_ind, gt_ind]
+
                 assert(_gt_overlaps[j] == gt_ovr)
+
+                # 消除最大的iou所在的行和列
                 overlaps[box_ind, :] = -1
                 overlaps[:, gt_ind] = -1
 
@@ -162,11 +166,14 @@ class imdb(object):
 
         num_pos = gt_overlaps.size
         gt_overlaps = np.sort(gt_overlaps)
+
         step = 0.001
+
         thresholds = np.minimum(np.arange(0.5, 1.0 + step, step), 1.0)
         recalls = np.zeros_like(thresholds)
         for i, t in enumerate(thresholds):
             recalls[i] = (gt_overlaps >= t).sum() / float(num_pos)
+        # 积分
         ar = 2 * np.trapz(recalls, thresholds)
 
         return ar, gt_overlaps, recalls, thresholds
